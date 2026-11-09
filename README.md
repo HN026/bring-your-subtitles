@@ -32,7 +32,7 @@ Load the extension using the steps below, open a regular YouTube video and choos
 ## Install in Chrome
 
 1. Open `chrome://extensions` and enable **Developer mode**.
-2. [Download the release ZIP](https://github.com/HN026/bring-your-subtitles/releases/latest) and unzip it.
+2. [Download the release ZIP](https://github.com/HN026/bring-your-subtitles/releases/tag/v0.1.0) and unzip it.
 3. Click **Load unpacked** and select the unzipped folder containing `manifest.json`. If using a source checkout, select its `extension` directory.
 4. Open a video on `https://www.youtube.com`, then click **Bring Your Subtitles** in the extensions menu (pin it for easy access).
 5. Click **Choose SRT or VTT file** in the video player.
