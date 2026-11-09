@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-label="Bring Your Subtitles — Your subtitles. Your YouTube.">
+  <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#101c32"/><stop offset="1" stop-color="#253b5e"/></linearGradient></defs>
+  <rect width="1200" height="360" rx="24" fill="url(#bg)"/>
+  <circle cx="1090" cy="36" r="160" fill="#aecbff" opacity=".05"/>
+  <circle cx="850" cy="360" r="160" fill="#77e8bb" opacity=".05"/>
+  <g transform="translate(66 90)">
+    <rect width="180" height="180" rx="40" fill="#141e31" stroke="#aecbff" stroke-opacity=".35"/>
+    <rect x="29" y="39" width="124" height="102" rx="18" fill="none" stroke="#aecbff" stroke-width="8"/>
+    <path d="M78 64 108 82 78 100Z" fill="#77e8bb"/>
+    <path d="M56 119H87M101 119H126" stroke="#aecbff" stroke-width="7" stroke-linecap="round"/>
+  </g>
+  <g font-family="system-ui,-apple-system,Segoe UI,sans-serif">
+    <text x="292" y="129" font-size="16" font-weight="600" fill="#77e8bb" letter-spacing="3">CHROME + FIREFOX</text>
+    <text x="290" y="190" font-size="52" font-weight="700" fill="#f2f6ff">Bring Your Subtitles</text>
+    <text x="293" y="234" font-size="25" fill="#becde4">Your subtitles. Your YouTube.</text>
+    <text x="293" y="274" font-size="17" fill="#9eafc9">Local SRT / VTT · Timing controls · No uploads</text>
+  </g>
+</svg>

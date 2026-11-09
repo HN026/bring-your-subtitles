@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="require-trusted-types-for 'script'">
+<title>Subtitle integration checks</title>
+<style>body{margin:30px;background:#172132;color:white;font:16px system-ui}#movie_player{position:relative;width:960px;height:540px;background:#243750}video{width:100%;height:100%}#report{white-space:pre-wrap}</style>
+<h1>Bring Your Subtitles · integration fixture</h1>
+<div id="movie_player"><video></video></div><pre id="report">RUNNING</pre>
+<script>
+// A controlled player fixture: these hooks exist only in the test page.
+const nativeAttach = Element.prototype.attachShadow;
+Element.prototype.attachShadow = function(options) {
+  const root = nativeAttach.call(this, options);
+  window.testShadow = root;
+  return root;
+};
+</script>
+<script src="../extension/subtitles.js"></script>
+<script src="../extension/content.js"></script>
+<script src="../extension/content.js"></script>
+<script>
+(async () => {
+  const results = [];
+  const assert = (condition, message) => { if (!condition) throw new Error(message); results.push('PASS ' + message); };
+  const root = window.testShadow;
+  const $ = selector => root.querySelector(selector);
+  const video = document.querySelector('video');
+  let time = 1.5;
+  Object.defineProperty(video, 'currentTime', { get: () => time });
+  const update = () => video.dispatchEvent(new Event('seeked'));
+  const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+  try {
+    const transfer = new DataTransfer();
+    transfer.items.add(new File(['1\n00:00:01,000 --> 00:00:03,000\nHello &lt;img onerror=alert(1)&gt;\n\n2\n00:00:04,000 --> 00:00:05,000\nSecond'], 'demo.srt'));
+    $('#file').files = transfer.files;
+    $('#file').dispatchEvent(new Event('change'));
+    for (let i = 0; i < 40 && !$('#status').textContent.includes('2 cues'); i++) await wait(25);
+    update();
+    assert($('.text').textContent === 'Hello <img onerror=alert(1)>', 'local file loads as plain text');
+    assert(!root.querySelector('img'), 'subtitle markup cannot create DOM elements');
+    time = 4.5; update();
+    assert($('.text').textContent === 'Second', 'seeking forward updates the cue');
+    time = 1.5; update();
+    assert($('.text').textContent.startsWith('Hello'), 'seeking backward updates the cue');
+    $('#later').click(); $('#later').click();
+    assert($('.captions').hidden, 'positive delay postpones the cue');
+    time = 2.5; update();
+    assert(!$('.captions').hidden, 'delayed cue appears at adjusted time');
+    $('#toggle').click();
+    assert($('.captions').hidden, 'hide subtitles works');
+    $('#toggle').click();
+    document.querySelector('#movie_player').classList.add('ad-showing'); update();
+    assert($('.captions').hidden, 'YouTube ad state suppresses captions');
+    document.querySelector('#movie_player').classList.remove('ad-showing'); update();
+    assert(!$('.captions').hidden, 'captions return after ad state clears');
+    $('#close').click();
+    assert($('.panel').hidden && !$('.captions').hidden, 'closing controls keeps subtitles visible');
+    globalThis.__bringYourSubtitles.open();
+    assert(!$('.panel').hidden, 'toolbar action can reopen controls');
+    $('#size').value = '40'; $('#size').dispatchEvent(new Event('input'));
+    assert($('.captions').style.fontSize === '40px', 'text sizing applies');
+    location.hash = 'same-video'; await wait(800);
+    assert(!$('.captions').hidden, 'same-video navigation keeps loaded subtitles');
+    const replacement = document.createElement('video');
+    Object.defineProperty(replacement, 'currentTime', { get: () => 2.5 });
+    video.replaceWith(replacement); await wait(800);
+    assert(!$('.captions').hidden, 'replacing the player video reattaches subtitle rendering');
+    assert(document.querySelector('#movie_player').childElementCount === 2, 'repeated injection reuses the existing controls');
+    history.pushState({}, '', '?v=another-video'); await wait(800);
+    assert($('.captions').hidden && $('#status').textContent.includes('New video'), 'a different video clears the loaded file');
+    $('#clear').click();
+    assert($('.captions').hidden && $('#offset').value === '0', 'remove file clears cues and timing');
+    document.getElementById('report').textContent = results.join('\n') + '\nALL PASSED';
+  } catch (error) {
+    document.getElementById('report').textContent = results.join('\n') + '\nFAIL ' + error.stack;
+  }
+  if (location.protocol === 'http:') {
+    await fetch('/__result', { method: 'POST', body: document.getElementById('report').textContent });
+  }
+})();
+</script>
+</html>
